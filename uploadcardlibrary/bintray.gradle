@@ -1,16 +1,16 @@
 apply plugin: 'com.novoda.bintray-release'
 //项目主页
-def siteUrl = 'https://github.com/apetoman/cardCollect'
+def siteUrl = 'https://github.com/apetoman/CardUpLoad'
 
 /*
 * gradlew clean build bintrayUpload -PbintrayUser=zmcat -PbintrayKey=616d1bceeef0c5fe4b78b278c3bec52c505e50b8 -PdryRun=false
-draw room tool
+upload card tool
 */
 publish {
     repoName = 'maven'
     userOrg = 'ejujdhome'
     groupId = 'com.eju.cy.uploadcardlibrary'
-    artifactId = 'cuploadcardlibrary'
+    artifactId = 'uploadCard'
     publishVersion = '1.0.0'
     desc = '身份证上传'
     website = siteUrl
