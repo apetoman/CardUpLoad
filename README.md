@@ -5,7 +5,15 @@
 
 -**引入**:
 
-`implementation 'com.eju.cy.uploadcardlibrary:uploadCard:1.0.7' `
+```
+主工程需要以下jar支持，请添加，如已添加请忽略
+ implementation rootProject.ext.dependencies["retrofit"]
+ implementation rootProject.ext.dependencies["okhttp3"]
+ implementation rootProject.ext.dependencies["retrofit-converter-gson"]
+ 
+ //引入SDK
+ implementation 'com.eju.cy.uploadcardlibrary:uploadCard:1.0.7' 
+```
 
 ## Step2 
 -**配置混淆**
@@ -15,7 +23,7 @@
 ```
 ## Step3
 
--调用方式如下
+-**调用方式如下**
 
 ```
 class MainActivity : AppCompatActivity(), EjuHomeObserver {
