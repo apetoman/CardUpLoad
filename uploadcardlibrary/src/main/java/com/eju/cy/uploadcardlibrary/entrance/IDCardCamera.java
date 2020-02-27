@@ -1,10 +1,11 @@
-package com.eju.cy.uploadcardlibrary.camera;
+package com.eju.cy.uploadcardlibrary.entrance;
 
 import android.app.Activity;
 import android.content.Intent;
 
 import androidx.fragment.app.Fragment;
 
+import com.eju.cy.uploadcardlibrary.camera.CameraActivity;
 import com.eju.cy.uploadcardlibrary.utils.AppTags;
 
 import java.lang.ref.WeakReference;

@@ -24,9 +24,9 @@ import androidx.core.app.ActivityCompat;
 
 import com.eju.cy.uploadcardlibrary.R;
 import com.eju.cy.uploadcardlibrary.callback.EjuHomeEventCar;
-import com.eju.cy.uploadcardlibrary.cropper.CropImageView;
 import com.eju.cy.uploadcardlibrary.cropper.CropListener;
 import com.eju.cy.uploadcardlibrary.dto.UploadCardDto;
+import com.eju.cy.uploadcardlibrary.entrance.IDCardCamera;
 import com.eju.cy.uploadcardlibrary.global.Constant;
 import com.eju.cy.uploadcardlibrary.net.AppNetInterface;
 import com.eju.cy.uploadcardlibrary.net.RetrofitManager;
@@ -38,6 +38,8 @@ import com.eju.cy.uploadcardlibrary.utils.JsonUtils;
 import com.eju.cy.uploadcardlibrary.utils.ParameterUtils;
 import com.eju.cy.uploadcardlibrary.utils.PermissionUtils;
 import com.eju.cy.uploadcardlibrary.utils.ScreenUtils;
+import com.eju.cy.uploadcardlibrary.view.CameraPreview;
+import com.eju.cy.uploadcardlibrary.view.CropImageView;
 
 import java.io.FileInputStream;
 import java.io.IOException;

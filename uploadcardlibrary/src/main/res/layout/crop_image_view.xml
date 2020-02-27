@@ -16,7 +16,7 @@
             android:scaleType="fitCenter"
             />
 
-        <com.eju.cy.uploadcardlibrary.cropper.CropOverlayView
+        <com.eju.cy.uploadcardlibrary.view.CropOverlayView
             android:id="@+id/overlay_crop"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

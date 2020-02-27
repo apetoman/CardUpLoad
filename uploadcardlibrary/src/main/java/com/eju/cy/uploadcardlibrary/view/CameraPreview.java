@@ -1,4 +1,4 @@
-package com.eju.cy.uploadcardlibrary.camera;
+package com.eju.cy.uploadcardlibrary.view;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -10,12 +10,12 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-
+import com.eju.cy.uploadcardlibrary.camera.AutoFocusManager;
+import com.eju.cy.uploadcardlibrary.camera.CameraUtils;
+import com.eju.cy.uploadcardlibrary.camera.SensorControler;
 import com.eju.cy.uploadcardlibrary.utils.ScreenUtils;
 
 import java.util.List;
-
-import retrofit2.Retrofit;
 
 
 /**

@@ -2,16 +2,18 @@ package com.eju.cy.cardcollectsample
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.eju.cy.uploadcardlibrary.callback.EjuHomeEventCar
 import com.eju.cy.uploadcardlibrary.callback.EjuHomeObserver
-import com.eju.cy.uploadcardlibrary.camera.IDCardCamera
+import com.eju.cy.uploadcardlibrary.entrance.IDCardCamera
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), EjuHomeObserver {
 
     override fun update(obj: Any?) {
-        Log.w("身份证识别结果", obj as String)
+        Log.w("身份证识别结果----", obj as String)
+        Toast.makeText(this,"身份证识别结果",Toast.LENGTH_LONG).show()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -5,7 +5,7 @@
     android:background="@color/color_000000">
 
     <!--相机预览-->
-    <com.eju.cy.uploadcardlibrary.camera.CameraPreview
+    <com.eju.cy.uploadcardlibrary.view.CameraPreview
         android:id="@+id/camera_preview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -53,7 +53,7 @@
                     android:scaleType="fitXY" />
 
                 <!--手动裁剪区域-->
-                <com.eju.cy.uploadcardlibrary.cropper.CropImageView
+                <com.eju.cy.uploadcardlibrary.view.CropImageView
                     android:id="@+id/crop_image_view"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
