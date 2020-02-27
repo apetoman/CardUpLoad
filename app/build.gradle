@@ -1,0 +1,87 @@
+apply plugin: 'com.android.application'
+
+apply plugin: 'kotlin-android'
+
+apply plugin: 'kotlin-android-extensions'
+
+
+//签名文件配置
+def propsFile = file("./keystore/key-config.properties")
+Properties keyProps = new Properties()
+keyProps.load(new FileInputStream(propsFile))
+//打包时间
+static def packageTime() {
+    return new Date().format("yyyy-MM-dd", TimeZone.getTimeZone("UTC-8"))
+}
+
+android {
+
+
+    compileSdkVersion 28
+    defaultConfig {
+        applicationId "com.eju.cy.cardcollectsample"
+        minSdkVersion 21
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+
+    }
+
+    signingConfigs {
+        def vStoreFile = file(keyProps['storeFile'].toString())
+        def vStorePwd = keyProps['storePassword'].toString()
+        def vKeyAlias = keyProps['keyAlias'].toString()
+        def vKeyPwd = keyProps['keyPassword'].toString()
+        release {
+            storeFile vStoreFile
+            storePassword vStorePwd
+            keyAlias vKeyAlias
+            keyPassword vKeyPwd
+        }
+    }
+    //修改生成的最终文件名
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            outputFileName = "Onemile-v${variant.versionName}-${variant.name}-${packageTime()}.apk"
+        }
+    }
+
+    buildTypes {
+        debug {
+            buildConfigField "boolean", "LOG_DEBUG", "true"
+            buildConfigField "boolean", "USE_CANARY", "false"
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+        release {
+            buildConfigField "boolean", "LOG_DEBUG", "false"
+            buildConfigField "boolean", "USE_CANARY", "false"
+            minifyEnabled true
+            shrinkResources true
+            zipAlignEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+    }
+
+    dependencies {
+        implementation fileTree(dir: 'libs', include: ['*.jar'])
+        implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+        testImplementation 'junit:junit:4.12'
+
+      
+        implementation project(path: ':uploadcardlibrary')
+         //implementation 'com.eju.cy.uploadcardlibrary:uploadCard:1.0.7'
+//    implementation 'org.codehaus.groovy:groovy-all:2.4.15'
+
+        implementation rootProject.ext.dependencies["retrofit"]
+        implementation rootProject.ext.dependencies["okhttp3"]
+        implementation rootProject.ext.dependencies["retrofit-converter-gson"]
+
+
+
+    }
+
+}

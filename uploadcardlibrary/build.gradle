@@ -1,0 +1,79 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-android'
+
+android {
+    compileSdkVersion 28
+
+
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+
+
+        consumerProguardFiles 'consumer-rules.pro'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+
+
+    //network
+    api(rootProject.ext.dependencies["retrofit"]) {
+        exclude module: 'okhttp'
+        exclude module: 'okio'
+    }
+
+    api rootProject.ext.dependencies["okhttp3"]
+
+
+    api(rootProject.ext.dependencies["retrofit-converter-gson"]) {
+        exclude module: 'gson'
+        exclude module: 'okhttp'
+        exclude module: 'okio'
+        exclude module: 'retrofit'
+    }
+
+    api(rootProject.ext.dependencies["retrofit-adapter-rxjava2"]) {
+        exclude module: 'rxjava'
+        exclude module: 'okhttp'
+        exclude module: 'retrofit'
+        exclude module: 'okio'
+    }
+
+    api('com.github.ihsanbal:LoggingInterceptor:3.0.0') {
+        exclude group: 'org.json', module: 'json'
+    }
+
+    api rootProject.ext.dependencies["gson"]
+
+    api rootProject.ext.dependencies["rxjava2"]
+    api(rootProject.ext.dependencies["rxandroid2"]) {
+        exclude module: 'rxjava'
+    }
+
+    api(rootProject.ext.dependencies["appcompat-v7"]) {
+        exclude module: 'support-annotations'
+    }
+
+    api(rootProject.ext.dependencies["support-v4"]) {
+        exclude module: 'support-annotations'
+    }
+    api rootProject.ext.dependencies["annotations"]
+}
+apply from: 'bintray.gradle'
+repositories {
+    mavenCentral()
+}
