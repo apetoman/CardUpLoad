@@ -15,6 +15,8 @@ import com.eju.cy.uploadcardlibrary.utils.ScreenUtils;
 
 import java.util.List;
 
+import retrofit2.Retrofit;
+
 
 /**
  * @ Name: Caochen
@@ -256,11 +258,6 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         if (mSurfaceHolder != null) {
             mSurfaceHolder.addCallback(this);
         }
-    }
-
-    private  void  net(){
-
-
     }
 
 }

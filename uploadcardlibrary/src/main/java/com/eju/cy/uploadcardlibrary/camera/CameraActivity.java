@@ -2,33 +2,51 @@ package com.eju.cy.uploadcardlibrary.camera;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 
 import com.eju.cy.uploadcardlibrary.R;
+import com.eju.cy.uploadcardlibrary.callback.EjuHomeEventCar;
 import com.eju.cy.uploadcardlibrary.cropper.CropImageView;
 import com.eju.cy.uploadcardlibrary.cropper.CropListener;
+import com.eju.cy.uploadcardlibrary.dto.UploadCardDto;
 import com.eju.cy.uploadcardlibrary.global.Constant;
+import com.eju.cy.uploadcardlibrary.net.AppNetInterface;
+import com.eju.cy.uploadcardlibrary.net.RetrofitManager;
+import com.eju.cy.uploadcardlibrary.utils.AppTags;
 import com.eju.cy.uploadcardlibrary.utils.CommonUtils;
 import com.eju.cy.uploadcardlibrary.utils.FileUtils;
 import com.eju.cy.uploadcardlibrary.utils.ImageUtils;
+import com.eju.cy.uploadcardlibrary.utils.JsonUtils;
+import com.eju.cy.uploadcardlibrary.utils.ParameterUtils;
 import com.eju.cy.uploadcardlibrary.utils.PermissionUtils;
 import com.eju.cy.uploadcardlibrary.utils.ScreenUtils;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 
 /**
@@ -50,11 +68,18 @@ public class CameraActivity extends Activity implements View.OnClickListener {
     private TextView mViewCameraCropBottom;
     private FrameLayout mFlCameraOption;
     private View mViewCameraCropLeft;
-
+    private RelativeLayout rl_av_load;
     private TextView mTvNext;
+
 
     private int mType;//拍摄类型
     private boolean isToast = true;//是否弹吐司，为了保证for循环只弹一次
+
+    private String userId = "";
+    private String userToken = "";
+    private String frontImg = "";
+    private String backImg = "";
+    UploadCardDto returnDto = new UploadCardDto();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,12 +128,16 @@ public class CameraActivity extends Activity implements View.OnClickListener {
     private void init() {
         setContentView(R.layout.activity_camera);
         mType = getIntent().getIntExtra(IDCardCamera.TAKE_TYPE, 0);
+        this.userId = getIntent().getStringExtra(AppTags.USER_ID);
+        this.userToken = getIntent().getStringExtra(AppTags.USER_TOKEN);
+
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         initView();
         initListener();
     }
 
     private void initView() {
+
         mCameraPreview = (CameraPreview) findViewById(R.id.camera_preview);
         mLlCameraCropContainer = findViewById(R.id.ll_camera_crop_container);
         mIvCameraCrop = (ImageView) findViewById(R.id.iv_camera_crop);
@@ -121,6 +150,7 @@ public class CameraActivity extends Activity implements View.OnClickListener {
         mViewCameraCropLeft = findViewById(R.id.view_camera_crop_left);
 
         mTvNext = findViewById(R.id.tv_next);
+        rl_av_load = findViewById(R.id.rl_av_load);
 
         float screenMinSize = Math.min(ScreenUtils.getScreenWidth(this), ScreenUtils.getScreenHeight(this));
         float screenMaxSize = Math.max(ScreenUtils.getScreenWidth(this), ScreenUtils.getScreenHeight(this));
@@ -302,7 +332,6 @@ public class CameraActivity extends Activity implements View.OnClickListener {
     private void showFrontOrBack(boolean type) {
 
 
-
         //拿到图片上传成功则反面，失败则正面
         mType = IDCardCamera.TYPE_IDCARD_BACK;
         mCameraPreview.setEnabled(true);
@@ -341,21 +370,42 @@ public class CameraActivity extends Activity implements View.OnClickListener {
                     StringBuffer buffer = new StringBuffer();
                     String imagePath = "";
                     if (mType == IDCardCamera.TYPE_IDCARD_FRONT) {
-                        imagePath = buffer.append(Constant.DIR_ROOT).append(Constant.APP_NAME).append(".").append("idCardFrontCrop.jpg").toString();
 
-                        showFrontOrBack(false);
+                        imagePath = buffer.append(Constant.DIR_ROOT).append(Constant.APP_NAME).append(".").append("idCardFrontCrop.jpg").toString();
+                        if (ImageUtils.save(bitmap, imagePath, Bitmap.CompressFormat.JPEG)) {
+                            Log.w("imagePath-------", imagePath);
+                            String base64Img = imageToBase64(imagePath);
+                            Log.w("base64Img-------", base64Img);
+                            if (null != base64Img && base64Img.length() > 10) {
+                                requestNet(base64Img);
+                            } else {
+                                Toast.makeText(CameraActivity.this, "请稍后再试", Toast.LENGTH_LONG).show();
+                            }
+
+                        }
+
 
                     } else if (mType == IDCardCamera.TYPE_IDCARD_BACK) {
+                        Log.w("方面上传", "方面上传");
                         imagePath = buffer.append(Constant.DIR_ROOT).append(Constant.APP_NAME).append(".").append("idCardBackCrop.jpg").toString();
-                        showFrontOrBack(true);
+
+                        if (ImageUtils.save(bitmap, imagePath, Bitmap.CompressFormat.JPEG)) {
+                            Log.w("imagePath-------", imagePath);
+                            String base64Img = imageToBase64(imagePath);
+                            Log.w("base64Img-------", base64Img);
+                            if (null != base64Img && base64Img.length() > 10) {
+                                requestNet(base64Img);
+                            } else {
+                                Toast.makeText(CameraActivity.this, "请稍后再试", Toast.LENGTH_LONG).show();
+                            }
+
+                        } else {
+                            Log.w("保存图片失败", "保存图片失败");
+                        }
+
                     }
 
-                    if (ImageUtils.save(bitmap, imagePath, Bitmap.CompressFormat.JPEG)) {
-                        Intent intent = new Intent();
-                        intent.putExtra(IDCardCamera.IMAGE_PATH, imagePath);
-                        setResult(IDCardCamera.RESULT_CODE, intent);
 
-                    }
                 }
             }
         }, true);
@@ -376,4 +426,157 @@ public class CameraActivity extends Activity implements View.OnClickListener {
             mCameraPreview.onStop();
         }
     }
+
+
+    public void setType(int type) {
+        mType = type;
+    }
+
+    private void requestNet(final String base64Img) {
+        rl_av_load.setVisibility(View.VISIBLE);
+        AppNetInterface httpInterface = RetrofitManager.getDefault().provideClientApi(this, userId, userToken);
+
+        String type = "front";
+        if (mType == IDCardCamera.TYPE_IDCARD_FRONT) {
+            type = "front";
+        } else {
+            type = "back";
+        }
+
+        Log.w("TYPE--------", type);
+        final String finalType = type;
+        httpInterface.uploadCardImg(
+                ParameterUtils.prepareFormData(base64Img),
+                ParameterUtils.prepareFormData(type),
+                ParameterUtils.prepareFormData("true"),
+                ParameterUtils.prepareFormData("false"),
+                ParameterUtils.prepareFormData("false"),
+                ParameterUtils.prepareFormData("true")
+        ).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<UploadCardDto>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(UploadCardDto uploadCardDto) {
+                        rl_av_load.setVisibility(View.GONE);
+                        Log.w("----", "onNext");
+
+                        if (null != uploadCardDto && "10000".equals(uploadCardDto.getCode())) {
+                            //如果正面身份证上传且识别成功
+                            if (finalType.equals("front")) {
+
+                                returnDto = uploadCardDto;
+                                //拿到图片上传成功则反面，失败则正面
+                                mType = IDCardCamera.TYPE_IDCARD_BACK;
+                                mCameraPreview.setEnabled(true);
+                                mCameraPreview.addCallback();
+
+                                mCameraPreview.startPreview();
+                                mIvCameraFlash.setImageResource(R.mipmap.camera_flash_off);
+                                setTakePhotoLayout();
+
+                                mIvCameraCrop.setImageResource(R.mipmap.camera_idcard_back);
+                                setType(IDCardCamera.TYPE_IDCARD_BACK);
+
+                                frontImg = base64Img;
+
+                            } else {
+                                backImg = base64Img;
+                                returnDto.getData().setIssueOffice(uploadCardDto.getData().getIssueOffice());
+                                returnDto.getData().setExpiryDate(uploadCardDto.getData().getExpiryDate());
+                                returnDto.getData().setIssueDate(uploadCardDto.getData().getIssueDate());
+                                //正方面照片
+                                returnDto.getData().setFrontImgString(frontImg);
+                                returnDto.getData().setBackImgString(backImg);
+
+
+                                String json = JsonUtils.toJson(returnDto);
+
+                                //观察者
+                                EjuHomeEventCar.getDefault().post(json);
+                                finish();
+                            }
+
+
+                        } else {
+                            Toast.makeText(CameraActivity.this, uploadCardDto.getMsg(), Toast.LENGTH_LONG).show();
+                            rl_av_load.setVisibility(View.GONE);
+                            //正面失败
+                            if ("front".equals(finalType)) {
+                                Log.w("正面失败", "正面失败");
+                                mCameraPreview.setEnabled(true);
+                                mCameraPreview.addCallback();
+
+                                mCameraPreview.startPreview();
+                                mIvCameraFlash.setImageResource(R.mipmap.camera_flash_off);
+                                setTakePhotoLayout();
+                                mIvCameraCrop.setImageResource(R.mipmap.camera_idcard_front);
+                            } else {
+                                //反面失败
+                                Log.w("反面失败", "反面失败");
+                                mCameraPreview.setEnabled(true);
+                                mCameraPreview.addCallback();
+
+                                mCameraPreview.startPreview();
+                                mIvCameraFlash.setImageResource(R.mipmap.camera_flash_off);
+                                setTakePhotoLayout();
+                                mIvCameraCrop.setImageResource(R.mipmap.camera_idcard_back);
+                            }
+
+                        }
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        rl_av_load.setVisibility(View.GONE);
+                        Toast.makeText(CameraActivity.this, "请稍后再试", Toast.LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+
+
+    }
+
+    /**
+     * 将图片转换成Base64编码的字符串
+     */
+    public static String imageToBase64(String path) {
+        if (TextUtils.isEmpty(path)) {
+            return null;
+        }
+        InputStream is = null;
+        byte[] data = null;
+        String result = null;
+        try {
+            is = new FileInputStream(path);
+            //创建一个字符流大小的数组。
+            data = new byte[is.available()];
+            //写入数组
+            is.read(data);
+            //用默认的编码格式进行编码
+            result = Base64.encodeToString(data, Base64.NO_CLOSE);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (null != is) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }
+        return result;
+    }
+
 }
