@@ -21,18 +21,14 @@ class MainActivity : AppCompatActivity(), EjuHomeObserver {
         setContentView(R.layout.activity_main)
         EjuHomeEventCar.getDefault().register(this);
 
-        tv_go.setOnClickListener {
 
+        tv_go.setOnClickListener {
+            //参数依次为  上下文，userId   userToken
             IDCardCamera.create(this, "1", "7d9f83cba7896e8c061565ffcb44a3d3d129e084")
                 .openCamera(IDCardCamera.TYPE_IDCARD_FRONT)
 
         }
-        tv_goo.setOnClickListener {
 
-            IDCardCamera.create(this, "", "").openCamera(IDCardCamera.TYPE_IDCARD_BACK)
-
-
-        }
     }
 
     override fun onDestroy() {
