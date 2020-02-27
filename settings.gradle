@@ -1,2 +1,0 @@
-include ':app', ':uploadcardlibrary'
-rootProject.name='CardCollectSample'
