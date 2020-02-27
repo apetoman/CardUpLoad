@@ -73,7 +73,7 @@ android {
 
       
         implementation project(path: ':uploadcardlibrary')
-         //implementation 'com.eju.cy.uploadcardlibrary:uploadCard:1.0.7'
+
 //    implementation 'org.codehaus.groovy:groovy-all:2.4.15'
 
         implementation rootProject.ext.dependencies["retrofit"]
